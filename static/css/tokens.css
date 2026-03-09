@@ -11,16 +11,22 @@
   --color-accent-hover: #00EBAF;
 
   /* ── Surfaces ────────────────────────────────────────────────── */
+  --color-surface-dim: #F4F4F5;
+  --color-surface-btn: #E4E4E7;
+  /* Light grey interactive surface */
+
+  /* ── Structural Card Stacks ────────────────────────────────────── */
+  --color-stack-1: #F4F4F5;
+  --color-stack-2: #E4E4E7;
+
+  /* ── Badges ────────────────────────────────────────────────── */
   --color-bg: #F4F4F5;
   /* Soft light grey background */
   --color-surface: #FFFFFF;
   /* Pure white surface */
   --color-surface-elevated: #FFFFFF;
-  --color-surface-dim: #F4F4F5;
   --color-surface-btn: #E4E4E7;
   /* Light grey interactive surface */
-  --color-stack-1: #F4F4F5;
-  --color-stack-2: #E4E4E7;
 
   /* ── Text ────────────────────────────────────────────────────── */
   --color-text: #09090B;
