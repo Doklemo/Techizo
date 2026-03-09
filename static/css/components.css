@@ -214,6 +214,7 @@ html {
     left: 12px;
     right: 12px;
     background: var(--color-stack-1);
+    /* Stack base */
     z-index: -1;
 }
 
@@ -223,6 +224,7 @@ html {
     left: 24px;
     right: 24px;
     background: var(--color-stack-2);
+    /* Stack back */
     z-index: -2;
 }
 
