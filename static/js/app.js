@@ -562,20 +562,81 @@
         window.location.href = "mailto:feedback@pulse.app";
     };
 
-    // Daily Reminder Toggle
+    // Daily Reminder Push Notification API
+    async function subscribeToPushNotifications() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') return false;
+
+            const swRegistration = await navigator.serviceWorker.ready;
+
+            // Base64URL string extracted from pywebpush generator
+            const publicVapidKey = 'BLr0ntXfzNiaKak8O1LPScZuDYG5m32GHu3mlsfgh2ltHBlMTNIx_d2Ul-Sj2yR-X9qObg894Lh4W_Sezc-jbZA';
+
+            function urlB64ToUint8Array(base64String) {
+                const padding = '='.repeat((4 - base64String.length % 4) % 4);
+                const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+                const rawData = window.atob(base64);
+                const outputArray = new Uint8Array(rawData.length);
+                for (let i = 0; i < rawData.length; ++i) {
+                    outputArray[i] = rawData.charCodeAt(i);
+                }
+                return outputArray;
+            }
+
+            const subscription = await swRegistration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlB64ToUint8Array(publicVapidKey)
+            });
+
+            const res = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(subscription)
+            });
+            return res.ok;
+        } catch (e) {
+            console.error("Push subscription mapping error", e);
+            return false;
+        }
+    }
+
     const toggleReminder = document.getElementById("toggle-reminder");
     const reminderStatusText = document.getElementById("reminder-status-text");
-    if (toggleReminder) {
-        toggleReminder.addEventListener("change", (e) => {
-            if (e.target.checked) {
-                reminderStatusText.textContent = "On";
-                showToast("Daily reminders enabled");
+    const footerAction = document.getElementById("footer-action");
+
+    // Initialize state mapping natively from local storage
+    if (localStorage.getItem("pulse-reminders") === "enabled") {
+        if (toggleReminder) toggleReminder.checked = true;
+        if (reminderStatusText) reminderStatusText.textContent = "On";
+        if (footerAction) footerAction.style.display = "none";
+    }
+
+    const btnRemindOpts = document.querySelectorAll(".btn-remind, #toggle-reminder");
+    btnRemindOpts.forEach(btn => {
+        btn.addEventListener(btn.tagName === "INPUT" ? "change" : "click", async (e) => {
+            const isTogglingOn = e.target.tagName === "INPUT" ? e.target.checked : true;
+
+            if (isTogglingOn) {
+                const success = await subscribeToPushNotifications();
+                if (success) {
+                    localStorage.setItem("pulse-reminders", "enabled");
+                    if (toggleReminder) toggleReminder.checked = true;
+                    if (reminderStatusText) reminderStatusText.textContent = "On";
+                    if (footerAction) footerAction.style.display = "none"; /* Hide CTA */
+                    showToast("Daily reminders enabled");
+                } else {
+                    if (toggleReminder) toggleReminder.checked = false;
+                    showToast("Push permission denied by browser");
+                }
             } else {
-                reminderStatusText.textContent = "Off";
+                localStorage.setItem("pulse-reminders", "disabled");
+                if (reminderStatusText) reminderStatusText.textContent = "Off";
                 showToast("Daily reminders disabled");
             }
         });
-    }
+    });
 
     // ── Helpers ────────────────────────────────────────────────────
     function escapeHtml(str) {

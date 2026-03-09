@@ -22,6 +22,51 @@ logger = logging.getLogger(__name__)
 _scheduler: AsyncIOScheduler | None = None
 
 
+def _dispatch_push_notifications(new_articles: list[dict]) -> None:
+    """Detects new top-stories by category and dispatches pywebpush JSON payloads independently to secure subscribers."""
+    if not new_articles:
+        return
+    try:
+        from config import SUBSCRIPTIONS_FILE, VAPID_PRIVATE_KEY_PATH, VAPID_CLAIMS
+        import pywebpush
+
+        if not SUBSCRIPTIONS_FILE.exists():
+            return
+            
+        subs = json.loads(SUBSCRIPTIONS_FILE.read_text(encoding="utf-8"))
+        if not subs:
+            return
+
+        # Isolate the definitive top breaking story for each category
+        top_by_cat = {}
+        for a in new_articles:
+            cat = a.get("category", "breaking")
+            if cat not in top_by_cat:
+                top_by_cat[cat] = a
+
+        for cat, article in top_by_cat.items():
+            payload = json.dumps({
+                "title": f"Techizo — {cat.capitalize()}",
+                "body": article.get("title", "New updates are available"),
+                "icon": "/static/icons/icon-192.png",
+                "url": "/"
+            })
+            for sub in subs:
+                try:
+                    pywebpush.webpush(
+                        subscription_info=sub,
+                        data=payload,
+                        vapid_private_key=str(VAPID_PRIVATE_KEY_PATH),
+                        vapid_claims=VAPID_CLAIMS
+                    )
+                except pywebpush.WebPushException as ex:
+                    logger.debug("WebPush exception for %s: %s", sub.get("endpoint"), ex)
+                except Exception as ex:
+                    logger.error("WebPush dispatch exception: %s", ex)
+    except Exception as exc:
+        logger.error("Critical failure sequencing push notifications: %s", exc)
+
+
 async def refresh_feeds() -> None:
     """
     Fetch articles from NewsAPI + RSS, merge, deduplicate by id,
@@ -34,6 +79,15 @@ async def refresh_feeds() -> None:
 
     logger.info("═" * 60)
     logger.info("Starting feed refresh…")
+
+    # Capture preexisting DB arrays to diff new articles
+    existing_ids = set()
+    try:
+        if FEED_CACHE_PATH.exists():
+            old_data = json.loads(FEED_CACHE_PATH.read_text(encoding="utf-8"))
+            existing_ids = {a["id"] for a in old_data if "id" in a}
+    except Exception:
+        pass
 
     newsapi_count = 0
     rss_count = 0
@@ -73,6 +127,12 @@ async def refresh_feeds() -> None:
         )
 
         # ── Summary log ──────────────────────────────────────────
+        new_articles = [a for a in sorted_articles if a["id"] not in existing_ids]
+
+        # Dispatch async Web Push Events out to clients
+        if new_articles:
+            _dispatch_push_notifications(new_articles)
+
         total = len(sorted_articles)
         logger.info("Feed refresh complete:")
         logger.info("  NewsAPI : %d articles", newsapi_count)

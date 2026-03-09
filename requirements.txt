@@ -5,5 +5,8 @@ httpx
 feedparser
 apscheduler
 python-dotenv
+clean-text==0.6.0
 anthropic
-beautifulsoup4
+beautifulsoup4==4.12.3
+pywebpush
+py-vapid

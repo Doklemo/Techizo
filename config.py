@@ -19,7 +19,15 @@ NEWS_API_KEY: str = os.getenv("NEWS_API_KEY", "")
 ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
 
 # ── Feature Flags ────────────────────────────────────────────────────
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 SUMMARISE_WITH_AI: bool = os.getenv("SUMMARISE_WITH_AI", "false").lower() == "true"
+
+# ── Web Push Notification Settings ───────────────────────────────────
+VAPID_PRIVATE_KEY_PATH = BASE_DIR / "private_key.pem"
+VAPID_CLAIMS = {
+    "sub": "mailto:admin@techizo.app"
+}
+SUBSCRIPTIONS_FILE = DATA_DIR / "subscriptions.json"
 
 # ── Scheduler ────────────────────────────────────────────────────────
 FETCH_INTERVAL_MINUTES: int = int(os.getenv("FETCH_INTERVAL_MINUTES", "60"))

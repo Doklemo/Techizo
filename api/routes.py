@@ -7,10 +7,11 @@ All reads are wrapped in try/except — a failed cache read never crashes the se
 
 import json
 import logging
-from typing import Literal
+from typing import Literal, Optional
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from config import FEED_CACHE_PATH
 
@@ -80,3 +81,33 @@ async def refresh_feed(background_tasks: BackgroundTasks) -> JSONResponse:
     except Exception as exc:
         logger.error("POST /api/refresh error: %s", exc)
         raise HTTPException(status_code=500, detail="Refresh failed") from exc
+
+# ── Push Subscriptions ───────────────────────────────────────────────
+
+class PushKeys(BaseModel):
+    p256dh: str
+    auth: str
+
+class PushSubscription(BaseModel):
+    endpoint: str
+    expirationTime: Optional[int | float | str] = None
+    keys: PushKeys
+
+@router.post("/subscribe")
+async def subscribe(sub: PushSubscription) -> JSONResponse:
+    """Register a new Service Worker push subscription."""
+    try:
+        from config import SUBSCRIPTIONS_FILE
+        subs = []
+        if SUBSCRIPTIONS_FILE.exists():
+            subs = json.loads(SUBSCRIPTIONS_FILE.read_text(encoding="utf-8"))
+            
+        sub_dict = sub.model_dump()
+        if not any(s.get("endpoint") == sub_dict["endpoint"] for s in subs):
+            subs.append(sub_dict)
+            SUBSCRIPTIONS_FILE.write_text(json.dumps(subs), encoding="utf-8")
+            
+        return JSONResponse(content={"status": "subscribed"})
+    except Exception as exc:
+        logger.error("POST /api/subscribe error: %s", exc)
+        return JSONResponse(content={"error": str(exc)}, status_code=500)
