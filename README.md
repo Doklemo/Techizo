@@ -1,6 +1,6 @@
-# Pulse AI News 🌱
+# Techizo 🌱
 
-Pulse is a lightning-fast Progressive Web App (PWA) designed to curate, aggregate, and smartly filter news across AI, Technology, and Robotics.
+Techizo is a lightning-fast Progressive Web App (PWA) designed to curate, aggregate, and smartly filter news across AI, Technology, and Robotics.
 
 It features a custom-built HTML web scraper that natively syndicates profound AI model updates directly from Anthropic and OpenAI alongside standard global RSS feeds.
 
@@ -28,7 +28,7 @@ It features a custom-built HTML web scraper that natively syndicates profound AI
    ```
 
 4. **Run the Application:**
-   Pulse utilises `uvicorn` to serve its FastAPI backend asynchronously.
+   Techizo utilises `uvicorn` to serve its FastAPI backend asynchronously.
    ```bash
    python3 main.py
    # Or alternatively:
@@ -38,7 +38,7 @@ It features a custom-built HTML web scraper that natively syndicates profound AI
 
 ## Cloud Deployment (Render.com)
 
-Pulse is pre-configured for instant zero-downtime deployments on Render.
+Techizo is pre-configured for instant zero-downtime deployments on Render.
 1. Connect this repository to your Render account.
 2. Select **Blueprint** to deploy via the attached `render.yaml`, or create a **Web Service** manually using the `Procfile`.
 3. Render will automatically execute `pip install -r requirements.txt` and launch the app via `uvicorn`. Ensure you supply the `NEWS_API_KEY` and `ANTHROPIC_API_KEY` in the Render Environment Variables dashboard.

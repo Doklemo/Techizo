@@ -1,7 +1,7 @@
 """
 main.py
 -------
-Entry point for the Pulse PWA news reader.
+Entry point for the Techizo PWA news reader.
 Sets up FastAPI with Jinja2 templating, mounts static files,
 includes API routes, and manages the background scheduler lifecycle.
 """
@@ -32,17 +32,17 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     """Start the scheduler on boot; stop it on shutdown."""
-    logger.info("Pulse starting up …")
+    logger.info("Techizo starting up …")
     config.DATA_DIR.mkdir(parents=True, exist_ok=True)
     start_scheduler()
     yield
     stop_scheduler()
-    logger.info("Pulse shut down.")
+    logger.info("Techizo shut down.")
 
 
 # ── App ──────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="Pulse",
+    title="Techizo",
     description="AI / Tech / Robotics news reader PWA",
     version="1.0.0",
     lifespan=lifespan,
