@@ -1,0 +1,26 @@
+# Environment
+.env
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data (regenerated at runtime)
+data/feed_cache.json
+
+# OS
+.DS_Store
+Thumbs.db

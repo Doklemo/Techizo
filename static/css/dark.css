@@ -1,0 +1,36 @@
+/* ═══════════════════════════════════════════════════════════════════
+   dark.css — Dark mode token overrides
+   Applied via [data-theme="dark"] on <html>.
+   Only overrides colour tokens; layout & spacing stay the same.
+   ═══════════════════════════════════════════════════════════════════ */
+
+[data-theme="dark"] {
+    /* ── Surfaces ──────────────────────────────────────────────── */
+    --color-bg: #09090B;
+    --color-surface: #1A1A1E;
+    --color-surface-elevated: #2A2A2E;
+    --color-surface-dim: #151518;
+    --color-surface-btn: #27272A;
+
+    /* ── Badges (Dark Mode Adjustments) ────────────────────────── */
+    --color-cat-ai-bg: rgba(41, 128, 185, 0.2);
+    --color-cat-ai-text: #6CB2E4;
+    --color-cat-technology-bg: rgba(255, 255, 255, 0.1);
+    --color-cat-technology-text: #DFDFDF;
+    --color-cat-robotics-bg: rgba(39, 174, 96, 0.2);
+    --color-cat-robotics-text: #55E6C1;
+
+    /* ── Text ──────────────────────────────────────────────────── */
+    --color-text: #FFFFFF;
+    --color-text-muted: #A1A1AA;
+    --color-text-inverse: #000000;
+
+    /* ── Borders & Overlays ────────────────────────────────────── */
+    --color-border: rgba(255, 255, 255, 0.05);
+    --color-overlay: rgba(255, 255, 255, 0.08);
+
+    /* ── Shadows ───────────────────────────────────────────────── */
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.3);
+    --shadow-card-hover: 0 8px 28px rgba(0, 0, 0, 0.45);
+    --shadow-header: 0 1px 4px rgba(0, 0, 0, 0.3);
+}

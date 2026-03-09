@@ -1,0 +1,29 @@
+{
+    "name": "Pulse",
+    "short_name": "Pulse",
+    "description": "AI, Technology & Robotics news reader",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "theme_color": "#1A1A2E",
+    "background_color": "#FFFFFF",
+    "icons": [
+        {
+            "src": "/static/icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/static/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "news",
+        "technology"
+    ]
+}
