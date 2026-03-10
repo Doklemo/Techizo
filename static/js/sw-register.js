@@ -15,12 +15,24 @@
                     "/sw.js",
                     { scope: "/" }
                 );
-                console.log(
-                    "Service Worker registered — scope:",
-                    registration.scope
-                );
+                console.log("Techizo PWA: Service Worker registered. Scope:", registration.scope);
+
+                // Listen for native Service Worker updates
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    if (newWorker) {
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // A new service worker has installed and is waiting
+                                if (window.showToast) {
+                                    window.showToast("New updates available — refresh");
+                                }
+                            }
+                        });
+                    }
+                });
             } catch (err) {
-                console.error("Service Worker registration failed:", err);
+                console.error("Techizo PWA: Service Worker registration failed:", err);
             }
         });
     }

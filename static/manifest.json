@@ -1,7 +1,7 @@
 {
     "name": "Techizo",
     "short_name": "Techizo",
-    "description": "AI, Technology & Robotics news reader",
+    "description": "AI, Technology & Robotics news — curated daily",
     "start_url": "/",
     "scope": "/",
     "display": "standalone",
@@ -22,8 +22,15 @@
             "purpose": "any maskable"
         }
     ],
+    "screenshots": [
+        {
+            "src": "/static/icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "form_factor": "narrow"
+        }
+    ],
     "categories": [
-        "news",
-        "technology"
+        "news"
     ]
 }

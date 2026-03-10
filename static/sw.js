@@ -1,124 +1,53 @@
-/**
- * sw.js — Pulse Service Worker
- *
- * Strategy:
- *   • App-shell assets → cache-first (fast repeat loads)
- *   • API calls        → network-first (fresh data, offline fallback)
- *
- * The cache is versioned; bumping CACHE_VERSION will purge old caches.
- */
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js');
 
-const CACHE_VERSION = "pulse-v40";
+if (workbox) {
+    console.log(`Techizo PWA: Workbox 7.0 loaded successfully. ✨`);
 
-// Assets that form the installable app shell
-const APP_SHELL = [
-    "/",
-    "/static/css/tokens.css",
-    "/static/css/base.css",
-    "/static/css/components.css",
-    "/static/css/dark.css",
-    "/static/js/app.js",
-    "/static/js/theme.js",
-    "/static/js/sw-register.js",
-    "/static/manifest.json",
-    "/static/icons/icon-192.png",
-    "/static/icons/icon-512.png",
-];
+    // ── Precaching ──────────────────────────────────────────────────────────
+    // Precaches critical shell assets statically.
+    workbox.precaching.precacheAndRoute([
+        { url: '/', revision: '3' },
+        { url: '/static/css/tokens.css', revision: '3' },
+        { url: '/static/css/base.css', revision: '3' },
+        { url: '/static/css/components.css', revision: '3' },
+        { url: '/static/css/dark.css', revision: '3' },
+        { url: '/static/js/app.js', revision: '3' },
+        { url: '/static/js/theme.js', revision: '3' },
+        { url: '/static/js/sw-register.js', revision: '3' },
+        { url: '/static/manifest.json', revision: '3' },
+        { url: '/static/icons/icon-192.png', revision: '3' },
+        { url: '/static/icons/icon-512.png', revision: '3' }
+    ]);
 
-// ── Install: pre-cache the app shell ──────────────────────────────
-self.addEventListener("install", (event) => {
-    event.waitUntil(
-        caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL))
+    // ── Static Assets Strategy ──────────────────────────────────────────────
+    workbox.routing.registerRoute(
+        /\.(?:css|js|png|svg)$/,
+        new workbox.strategies.CacheFirst({
+            cacheName: 'pulse-static-v1',
+            plugins: [
+                new workbox.expiration.ExpirationPlugin({
+                    maxEntries: 50,
+                })
+            ]
+        })
     );
-    // Activate immediately without waiting for old tabs
-    self.skipWaiting();
-});
 
-// ── Activate: purge outdated caches ───────────────────────────────
-self.addEventListener("activate", (event) => {
-    event.waitUntil(
-        caches.keys().then((keys) =>
-            Promise.all(
-                keys
-                    .filter((key) => key !== CACHE_VERSION)
-                    .map((key) => caches.delete(key))
-            )
-        )
+    // ── API Feed Strategy ───────────────────────────────────────────────────
+    workbox.routing.registerRoute(
+        new RegExp('/api/feed'),
+        new workbox.strategies.NetworkFirst({
+            cacheName: 'pulse-feed-v1',
+            networkTimeoutSeconds: 5,
+            plugins: [
+                new workbox.expiration.ExpirationPlugin({
+                    maxAgeSeconds: 2 * 60 * 60, // 2 hours
+                })
+            ]
+        })
     );
-    // Claim all open clients immediately
-    self.clients.claim();
-});
 
-// ── Fetch: strategy depends on request type ───────────────────────
-self.addEventListener("fetch", (event) => {
-    const { request } = event;
-    const url = new URL(request.url);
-
-    // API requests → network-first w/ cache fallback
-    if (url.pathname.startsWith("/api/")) {
-        event.respondWith(networkFirst(request));
-        return;
-    }
-
-    // JS and CSS → network-first so code updates always arrive
-    if (url.pathname.endsWith(".js") || url.pathname.endsWith(".css")) {
-        event.respondWith(networkFirst(request));
-        return;
-    }
-
-    // Everything else (icons, manifest, HTML) → cache-first
-    event.respondWith(cacheFirst(request));
-});
-
-/**
- * Cache-first: return cached response if available, else fetch and cache.
- * @param {Request} request
- * @returns {Promise<Response>}
- */
-async function cacheFirst(request) {
-    const cached = await caches.match(request);
-    if (cached) return cached;
-
-    try {
-        const response = await fetch(request);
-        if (response.ok) {
-            const cache = await caches.open(CACHE_VERSION);
-            cache.put(request, response.clone());
-        }
-        return response;
-    } catch {
-        // Offline and not cached — return a basic fallback
-        return new Response("Offline", {
-            status: 503,
-            statusText: "Service Unavailable",
-        });
-    }
-}
-
-/**
- * Network-first: try network, fall back to cache on failure.
- * @param {Request} request
- * @returns {Promise<Response>}
- */
-async function networkFirst(request) {
-    try {
-        const response = await fetch(request);
-        // Cache successful API responses for offline use
-        if (response.ok) {
-            const cache = await caches.open(CACHE_VERSION);
-            cache.put(request, response.clone());
-        }
-        return response;
-    } catch {
-        const cached = await caches.match(request);
-        if (cached) return cached;
-
-        // Return empty array for API fallback
-        return new Response("[]", {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
-    }
+} else {
+    console.warn(`Techizo PWA: Workbox failed to load. 😬`);
 }
 
 // ── Web Push Notifications ────────────────────────────────────────

@@ -22,6 +22,11 @@ ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 SUMMARISE_WITH_AI: bool = os.getenv("SUMMARISE_WITH_AI", "false").lower() == "true"
 
+# ── Paths ────────────────────────────────────────────────────────────
+BASE_DIR: Path = Path(__file__).resolve().parent
+DATA_DIR: Path = BASE_DIR / "data"
+FEED_CACHE_PATH: Path = DATA_DIR / "feed_cache.json"
+
 # ── Web Push Notification Settings ───────────────────────────────────
 VAPID_PRIVATE_KEY_PATH = BASE_DIR / "private_key.pem"
 VAPID_CLAIMS = {
@@ -34,11 +39,6 @@ FETCH_INTERVAL_MINUTES: int = int(os.getenv("FETCH_INTERVAL_MINUTES", "60"))
 
 # ── Server ───────────────────────────────────────────────────────────
 PORT: int = int(os.getenv("PORT", "8000"))
-
-# ── Paths ────────────────────────────────────────────────────────────
-BASE_DIR: Path = Path(__file__).resolve().parent
-DATA_DIR: Path = BASE_DIR / "data"
-FEED_CACHE_PATH: Path = DATA_DIR / "feed_cache.json"
 
 # ── NewsAPI ──────────────────────────────────────────────────────────
 NEWSAPI_KEYWORDS: list[str] = [

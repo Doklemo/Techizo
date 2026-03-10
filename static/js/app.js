@@ -604,7 +604,7 @@
 
     const toggleReminder = document.getElementById("toggle-reminder");
     const reminderStatusText = document.getElementById("reminder-status-text");
-    const footerAction = document.getElementById("footer-action");
+    footerAction = document.getElementById("footer-action");
 
     // Initialize state mapping natively from local storage
     if (localStorage.getItem("pulse-reminders") === "enabled") {
@@ -645,4 +645,65 @@
         div.appendChild(document.createTextNode(str));
         return div.innerHTML;
     }
+    // ── Offline Indicator ────────────────────────────────────────────
+    const offlineBanner = document.getElementById("offline-banner");
+    function updateOnlineStatus() {
+        if (!navigator.onLine) {
+            if (offlineBanner) offlineBanner.style.display = "block";
+            showToast("Connection lost. Showing offline cache.");
+        } else {
+            if (offlineBanner) offlineBanner.style.display = "none";
+        }
+    }
+    window.addEventListener("online", updateOnlineStatus);
+    window.addEventListener("offline", updateOnlineStatus);
+    updateOnlineStatus();
+
+    // ── PWA Install Prompt ───────────────────────────────────────────
+    let deferredPrompt;
+    const installDrawer = document.getElementById("install-drawer");
+    const btnInstallAccept = document.getElementById("btn-install-accept");
+    const btnInstallDismiss = document.getElementById("btn-install-dismiss");
+
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    if (!isStandalone) {
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installDrawer) {
+                installDrawer.classList.add('visible');
+                installDrawer.style.display = "block";
+            }
+        });
+
+        if (btnInstallAccept) {
+            btnInstallAccept.addEventListener('click', async () => {
+                if (installDrawer) installDrawer.classList.remove('visible');
+                setTimeout(() => { if (installDrawer) installDrawer.style.display = "none"; }, 400);
+
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`Techizo PWA Installation ${outcome}`);
+                    deferredPrompt = null;
+                }
+            });
+        }
+
+        if (btnInstallDismiss) {
+            btnInstallDismiss.addEventListener('click', () => {
+                if (installDrawer) installDrawer.classList.remove('visible');
+                setTimeout(() => { if (installDrawer) installDrawer.style.display = "none"; }, 400);
+            });
+        }
+    }
+
+    window.addEventListener('appinstalled', () => {
+        if (installDrawer) installDrawer.classList.remove('visible');
+        setTimeout(() => { if (installDrawer) installDrawer.style.display = "none"; }, 400);
+        console.log('Techizo was installed heavily system-side.');
+        showToast("Techizo installed successfully!");
+    });
+
 })();

@@ -29,10 +29,25 @@
 </head>
 
 <body>
+  <!-- Offline Indicator -->
+  <div id="offline-banner" class="offline-banner" style="display: none;">You are offline — showing cached news</div>
+
   {% block content %}{% endblock %}
 
   <!-- Toast notification container -->
   <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+  <!-- PWA Custom Install Drawer -->
+  <div id="install-drawer" class="install-drawer" style="display: none;">
+    <div class="install-drawer-content">
+      <h3>Install Techizo</h3>
+      <p>Get the app directly on your home screen for fast, offline access.</p>
+      <div class="install-actions">
+        <button id="btn-install-accept" class="btn btn-primary">Install App</button>
+        <button id="btn-install-dismiss" class="btn btn-outline">Not Now</button>
+      </div>
+    </div>
+  </div>
 
   <!-- JS (theme first so it applies before paint, then app logic) -->
   <script src="/static/js/theme.js?v=40"></script>
