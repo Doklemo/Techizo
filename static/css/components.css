@@ -45,7 +45,7 @@ html {
 
 .header__title {
     font-family: 'Merriweather', Georgia, serif;
-    font-size: 22px;
+    font-size: clamp(16px, 5vw, 22px);
     font-weight: var(--font-weight-bold);
     color: var(--color-text);
     margin: 0;
