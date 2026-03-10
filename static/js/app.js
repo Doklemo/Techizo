@@ -41,6 +41,7 @@
     // Gesture state
     let tracking = false;  // finger/mouse is down
     let dragging = false;  // past the dead-zone, actually swiping
+    let isAnimating = false; // blocks interaction during flips
     let startX = 0;
     let flipProgress = 0;
     const DEAD_ZONE = 10;       // px before we consider it a swipe
@@ -320,7 +321,7 @@
     }
 
     function onDown(e) {
-        if (currentIndex >= cardEls.length) return;
+        if (isAnimating || currentIndex >= cardEls.length) return;
         if (e.button !== undefined && e.button !== 0) return;
 
         // Don't initiate drag if clicking a link or button
@@ -333,7 +334,7 @@
     }
 
     function onTouchDown(e) {
-        if (currentIndex >= cardEls.length) return;
+        if (isAnimating || currentIndex >= cardEls.length) return;
         tracking = true;
         dragging = false;
         startX = e.touches[0].clientX;
@@ -341,7 +342,7 @@
     }
 
     function processDrag(clientX) {
-        if (!tracking || currentIndex >= cardEls.length) return;
+        if (!tracking || isAnimating || currentIndex >= cardEls.length) return;
 
         const deltaX = startX - clientX; // positive = swipe left
 
@@ -400,13 +401,13 @@
 
     // ── Public navigation (called by nav buttons) ───────────────────
     window.flipNext = function () {
-        if (currentIndex >= cardEls.length) return;
+        if (isAnimating || currentIndex >= cardEls.length) return;
         const topCard = cardEls[currentIndex];
         animateFlipForward(topCard);
     };
 
     window.flipPrev = function () {
-        if (currentIndex <= 0) return;
+        if (isAnimating || currentIndex <= 0) return;
         const prevIndex = currentIndex - 1;
         const prevCard = cardEls[prevIndex];
         animateFlipBack(prevCard);
@@ -417,6 +418,7 @@
      * Unifies Next button click (start=0) and swipe completion (start=flipProgress).
      */
     function animateFlipForward(cardEl, startProgress = 0) {
+        isAnimating = true;
         const duration = 1000;
         const start = performance.now();
 
@@ -445,6 +447,7 @@
                 cardEl.style.filter = "";
                 currentIndex++;
                 flipProgress = 0;
+                isAnimating = false;
             }
         }
         requestAnimationFrame(tick);
@@ -455,6 +458,7 @@
      * Goes from -180° back to 0° with easing.
      */
     function animateFlipBack(cardEl) {
+        isAnimating = true;
         const duration = 600;
         const start = performance.now();
         cardEl.classList.remove("snap-card--flipped");
@@ -476,6 +480,7 @@
                 cardEl.style.filter = "";
                 currentIndex--;
                 flipProgress = 0;
+                isAnimating = false;
             }
         }
         requestAnimationFrame(tick);
