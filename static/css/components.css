@@ -487,28 +487,28 @@ html {
     inset: 0;
     z-index: 150;
     background: var(--color-bg);
-    display: none;
+    display: flex;
+    /* Always in DOM */
     flex-direction: column;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    animation: slideUp 0.3s var(--transition) both;
+
+    /* Hardware accelerated repaint fix */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(20px) translate3d(0, 0, 0);
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
 }
 
 .settings-container--visible {
-    display: flex;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0) translate3d(0, 0, 0);
 }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
 
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
 
 .settings-header {
     display: flex;
@@ -739,18 +739,27 @@ input:checked+.toggle-slider:before {
 /* ── Native App Installation Drawer ────────────────────────── */
 .install-drawer {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    bottom: var(--space-md);
+    left: var(--space-md);
+    right: var(--space-md);
+    width: auto;
     background: var(--color-surface-elevated);
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
     z-index: 3000;
-    transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    padding: var(--space-xl) var(--space-lg) calc(var(--space-xl) + 20px) var(--space-lg);
-    border-top: 1px solid var(--color-border);
+    transform: translateY(150%);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    border: 1px solid var(--color-border);
+}
+
+@supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {
+    .install-drawer {
+        background: rgba(36, 36, 41, 0.85);
+        /* Semi-transparent fallback */
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
 }
 
 .install-drawer.visible {
@@ -758,13 +767,17 @@ input:checked+.toggle-slider:before {
 }
 
 .install-drawer-content h3 {
-    margin: 0 0 8px 0;
-    font-size: var(--font-size-lg);
+    margin: 0 0 6px 0;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
     color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .install-drawer-content p {
-    margin: 0 0 20px 0;
+    margin: 0 0 16px 0;
     font-size: var(--font-size-sm);
     color: var(--color-text-muted);
 }
@@ -776,4 +789,7 @@ input:checked+.toggle-slider:before {
 
 .install-actions .btn {
     flex: 1;
+    border-radius: var(--radius-pill);
+    padding: var(--space-sm) var(--space-md);
+    font-weight: var(--font-weight-bold);
 }
