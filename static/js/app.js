@@ -543,11 +543,10 @@
     const settingsContainer = document.getElementById("settings-container");
 
     window.toggleSettingsView = function () {
-        settingsViewOpen = !settingsViewOpen;
-        if (settingsViewOpen) {
-            settingsContainer.classList.add("settings-container--visible");
+        if (!settingsContainer.hasAttribute("open")) {
+            settingsContainer.showModal();
         } else {
-            settingsContainer.classList.remove("settings-container--visible");
+            settingsContainer.close();
         }
     };
 
