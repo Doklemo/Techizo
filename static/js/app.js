@@ -604,7 +604,7 @@
 
     const toggleReminder = document.getElementById("toggle-reminder");
     const reminderStatusText = document.getElementById("reminder-status-text");
-    footerAction = document.getElementById("footer-action");
+
 
     // Initialize state mapping natively from local storage
     if (localStorage.getItem("pulse-reminders") === "enabled") {
